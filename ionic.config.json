@@ -1,0 +1,7 @@
+{
+  "name": "Elm327_V0",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
