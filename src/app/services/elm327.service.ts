@@ -43,6 +43,26 @@ export class Elm327Service {
       );
     });
   }
+  write(data: string): Promise<void> { // Adicione 'void' como o tipo de retorno
+    return new Promise<void>((resolve, reject) => { // Adicione 'void' como o tipo de retorno
+      //console.log('Comando recebido : ', data);
+      if (!this.connectedDeviceId) {
+        reject('Nenhum dispositivo conectado');
+        return;
+      }
+        this.bluetoothSerial.write(data).then(
+        () => {
+          resolve(); // Remova os argumentos
+          //console.log('Comando enviado com sucesso.');
+        },
+        error => {
+          //console.log('Erro no envio do comando : ',error);
+          reject(error);
+        }
+      );
+    });
+  }
+
 /*
   read(): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -87,7 +107,7 @@ bytesToString(buffer: ArrayBuffer): string {
   return decodeURIComponent(escape(result));
 }
 
-
+/*
 readWithTimeout_1(timeout: number): Promise<any> {
   return new Promise<any>((resolve, reject) => {
     if (!this.connectedDeviceId) {
@@ -105,13 +125,11 @@ readWithTimeout_1(timeout: number): Promise<any> {
         // Mostrar a resposta na tela (substitua 'responseElement' pelo elemento adequado do seu template HTML)
         this.responseElement = response;
         responseReceived = true;
-        /*
         setTimeout(() => {
           // Limpar a resposta após 2 segundos
           this.responseElement = '';
           subscription.unsubscribe();
         }, timeout);
-        */
         resolve(response);
       },
       error => {
@@ -131,7 +149,7 @@ readWithTimeout_1(timeout: number): Promise<any> {
     }, timeout);
   });
 }
-
+*/
 
 /*
 readWithTimeout(timeout: number): Promise<string> {
@@ -198,11 +216,13 @@ readWithTimeout(timeout: number): Promise<string> {
           this.responseElement = response;
           clearTimeout(timeoutId);
           timeoutId = null;
+          /*
           setTimeout(() => {
             // Limpar a resposta após 2 segundos
             this.responseElement = '';
             subscription.unsubscribe();
-          }, 2000);
+          }, timeout);
+          */
           resolve(response);
         }
       },
@@ -226,26 +246,7 @@ readWithTimeout(timeout: number): Promise<string> {
 
 /***/
 
-  write(data: string): Promise<void> { // Adicione 'void' como o tipo de retorno
-    return new Promise<void>((resolve, reject) => { // Adicione 'void' como o tipo de retorno
-      console.log('Comando recebido : ', data);
-      if (!this.connectedDeviceId) {
-        reject('Nenhum dispositivo conectado');
-        return;
-      }
-        this.bluetoothSerial.write(data).then(
-        () => {
-          resolve(); // Remova os argumentos
-          //console.log('Comando enviado com sucesso.');
-        },
-        error => {
-          //console.log('Erro no envio do comando : ',error);
-          reject(error);
-        }
-      );
-    });
-  }
-  async connectToElm327() {
+  async connectToElm327( comandos:any) {
     try {
       /* Validar que o bluetooth esa ligado, caso contrario solicita a ativacao */
       await this.bluetoothSerial.isEnabled().then(() => {
@@ -280,38 +281,41 @@ readWithTimeout(timeout: number): Promise<string> {
 
       if (this.bisConnected && this.bBlueToothEnable){
         // Enviar comando ATZ para obter o nome do dispositivo
-        console.log('Enviando comando ATI...');
-        await this.write('ATI\r');
+        //console.log('Enviando comando ATI...');
+        //await this.write('ATI\r');
 
         // Ler a resposta do dispositivo
         //console.log('Lendo resposta do dispositivo...');
         //const response = await this.read();
-        const response = await this.readWithTimeout(2000);
+        //const response = await this.readWithTimeout(2000);
         //console.log('Resposta do dispositivo para o comando (ATI) : ', response);
 
         // Lista de comandos principais disponíveis no ELM327
+        /*
         const commands = [
           'ATZ\r', // - Reset',
           'AT0\r' // - Get Device Info',
           // Adicione mais comandos aqui...
         ];
-
-        console.log('Comandos Adicionais :');
-        for (const command of commands) {
-          await this.write(command);
+        */
+        // console.log('Comandos Adicionais :');
+        for (const command of comandos) {
+          await this.write(command.comando + '\r');
           const response = await this.readWithTimeout(2000);
           // console.log('Resposta do comando (',command,'):', response);
-          console.log('Resposta do dispositivo para o comando (',command,') : ', response);
-
+          console.log('Resposta do dispositivo para o comando (',command.comando,') : ', response);
+          //command.resposta = response;
+          command.resposta = this.responseElement;
         }
       }
       // desconecta do dispositivo Bluetooth
       await this.bluetoothSerial.disconnect().then();
-
+      console.log('Dispositivo desconectado !')
     } catch (error) {
       console.error('Erro:', error);
       this.bisConnected = false;
       await this.bluetoothSerial.disconnect().then();
+      console.log('Dispositivo desconectado devido a erro no processo!')
       alert(error);
     }
   }
