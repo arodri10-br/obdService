@@ -88,7 +88,7 @@ bytesToString(buffer: ArrayBuffer): string {
 }
 
 
-readWithTimeout(timeout: number): Promise<any> {
+readWithTimeout_1(timeout: number): Promise<any> {
   return new Promise<any>((resolve, reject) => {
     if (!this.connectedDeviceId) {
       reject('Nenhum dispositivo conectado');
@@ -132,6 +132,98 @@ readWithTimeout(timeout: number): Promise<any> {
   });
 }
 
+
+/*
+readWithTimeout(timeout: number): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    if (!this.connectedDeviceId) {
+      reject('Nenhum dispositivo conectado');
+      return;
+    }
+
+    let response = '';
+
+    const subscription = this.bluetoothSerial.subscribeRawData().subscribe(
+      data => {
+        const chunk = this.bytesToString(data);
+        response += chunk;
+        console.log('Chunk recebido:', chunk);
+
+        if (chunk.includes('\r')) {
+          console.log('Resposta completa recebida:', response);
+          // Mostrar a resposta na tela (substitua 'responseElement' pelo elemento adequado do seu template HTML)
+          this.responseElement = response;
+          setTimeout(() => {
+            // Limpar a resposta após 2 segundos
+            this.responseElement = '';
+            subscription.unsubscribe();
+          }, 2000);
+          resolve(response);
+        }
+      },
+      error => {
+        console.error('Erro ao receber resposta do dispositivo:', error);
+        reject(error);
+      }
+    );
+
+    setTimeout(() => {
+      const timeoutError = 'Timeout de leitura excedido';
+      console.error(timeoutError);
+      subscription.unsubscribe();
+      reject(timeoutError);
+    }, timeout);
+  });
+}
+*/
+readWithTimeout(timeout: number): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    if (!this.connectedDeviceId) {
+      reject('Nenhum dispositivo conectado');
+      return;
+    }
+
+    let response = '';
+    let timeoutId: any = null;
+
+    const subscription = this.bluetoothSerial.subscribeRawData().subscribe(
+      data => {
+        const chunk = this.bytesToString(data);
+        response += chunk;
+        console.log('Chunk recebido:', chunk);
+
+        if (chunk.includes('\r')) {
+          console.log('Resposta completa recebida:', response);
+          // Mostrar a resposta na tela (substitua 'responseElement' pelo elemento adequado do seu template HTML)
+          this.responseElement = response;
+          clearTimeout(timeoutId);
+          timeoutId = null;
+          setTimeout(() => {
+            // Limpar a resposta após 2 segundos
+            this.responseElement = '';
+            subscription.unsubscribe();
+          }, 2000);
+          resolve(response);
+        }
+      },
+      error => {
+        console.error('Erro ao receber resposta do dispositivo:', error);
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        reject(error);
+      }
+    );
+
+    timeoutId = setTimeout(() => {
+      console.warn('Timeout de leitura excedido');
+      timeoutId = null;
+      subscription.unsubscribe();
+      reject('Timeout de leitura excedido');
+    }, timeout);
+  });
+}
+
+
 /***/
 
   write(data: string): Promise<void> { // Adicione 'void' como o tipo de retorno
@@ -144,10 +236,10 @@ readWithTimeout(timeout: number): Promise<any> {
         this.bluetoothSerial.write(data).then(
         () => {
           resolve(); // Remova os argumentos
-          console.log('Comando enviado com sucesso.');
+          //console.log('Comando enviado com sucesso.');
         },
         error => {
-          console.log('Erro no envio do comando : ',error);
+          //console.log('Erro no envio do comando : ',error);
           reject(error);
         }
       );
@@ -192,10 +284,10 @@ readWithTimeout(timeout: number): Promise<any> {
         await this.write('ATI\r');
 
         // Ler a resposta do dispositivo
-        console.log('Lendo resposta do dispositivo...');
+        //console.log('Lendo resposta do dispositivo...');
         //const response = await this.read();
         const response = await this.readWithTimeout(2000);
-        console.log('Resposta:', response);
+        //console.log('Resposta do dispositivo para o comando (ATI) : ', response);
 
         // Lista de comandos principais disponíveis no ELM327
         const commands = [
@@ -208,7 +300,9 @@ readWithTimeout(timeout: number): Promise<any> {
         for (const command of commands) {
           await this.write(command);
           const response = await this.readWithTimeout(2000);
-          console.log('Resposta do comando (',command,'):', response);
+          // console.log('Resposta do comando (',command,'):', response);
+          console.log('Resposta do dispositivo para o comando (',command,') : ', response);
+
         }
       }
       // desconecta do dispositivo Bluetooth
