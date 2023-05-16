@@ -11,11 +11,13 @@
   <ion-button expand="full" (click)="connectToElm327()">Conectar ao ELM327</ion-button>
   <ion-row>
     <ion-col>Comando</ion-col>
+    <ion-col>St</ion-col>
     <ion-col>Resposta</ion-col>
   </ion-row>
   <div *ngFor="let item of comandos">
     <ion-row>
-      <ion-col size="2">{{ item.comando }}</ion-col>
+      <ion-col>{{ item.comando }}</ion-col>
+      <ion-col>{{ item.status }}</ion-col>
       <ion-col>{{ item.resposta }}</ion-col>
     </ion-row>
   </div>

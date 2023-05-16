@@ -10,11 +10,26 @@ export class HomePage {
   public strStatusBlue : any;
   public strStatusConn : any;
   public comandos = [
-    { comando: 'ATZ', resposta: '' }, // Reseta o adaptador ELM327 para as configurações padrão.
-    { comando: 'ATI', resposta: '' }, // Retorna informações sobre o adaptador ELM327, como versão de firmware e descrição.
-    { comando: 'AT@1', resposta: '' }, // Retorna a descrição da interface do adaptador ELM327.
-    { comando: 'AT@2', resposta: '' }, // Retorna o endereço MAC do adaptador ELM327 (se suportado).
-    { comando: 'AT@3', resposta: '' } // Retorna o nome do dispositivo Bluetooth do adaptador ELM327 (se suportado).
+    { comando: 'ATE0',  status:0, resposta: '' }, // 0 -> Echo Off / 1 -> Echo On
+    { comando: 'ATZ',   status:0, resposta: '' }, // Reseta o adaptador ELM327 para as configurações padrão.
+    { comando: 'ATSP0', status:0, resposta: '' }, //  Definir protocolo para automático.
+    { comando: 'ATI',   status:0, resposta: '' }, // Retorna informações sobre o adaptador ELM327, como versão de firmware e descrição.
+    { comando: 'ATDP',  status:0, resposta: '' }, // Mostra o protocolo utilizado
+    { comando: '0104',  status:0, resposta: '' }, //Mostra o protocolo utilizado
+    { comando: '0105',  status:0, resposta: '' }, // Temperatura do líquido de arrefecimento
+    { comando: '010B',  status:0, resposta: '' }, // Pressão no coletor de admissão
+    { comando: '010C',  status:0, resposta: '' }, //  Rotação atual do motor
+    { comando: '010D',  status:0, resposta: '' }, // Velocidade instantânea do veiculo
+    { comando: '010E',  status:0, resposta: '' }, // Avanço do ângulo de ignição
+    { comando: '010F',  status:0, resposta: '' }, // Temperatura do Ar
+    { comando: '0111',  status:0, resposta: '' }, // Posição da válvula borboleta - TPS
+    { comando: '03',    status:0, resposta: '' }, // DTC – Sem DTC (erros armazenados)
+
+    { comando: 'ATRV',  status:0, resposta: '' }, // Tensao da bateria
+
+    { comando: '010C',  status:0, resposta: '' }, // Odometro
+    { comando: '0105',  status:0, resposta: '' }, // Temperatura do Motor
+    { comando: '015E',  status:0, resposta: '' } // Consumo instantaneo
   ];
 
   constructor(private elm327Service: Elm327Service) {}

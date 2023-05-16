@@ -10,7 +10,7 @@ export class Elm327Service {
   public  bBlueToothEnable: boolean = false;
   public  bisConnected: boolean = false;
   public  responseElement: any;
-
+  public  responseStatus: any;
   constructor(private bluetoothSerial: BluetoothSerial) { }
 
   list(): Promise<any> {
@@ -213,16 +213,17 @@ readWithTimeout(timeout: number): Promise<string> {
         if (chunk.includes('\r')) {
           console.log('Resposta completa recebida:', response);
           // Mostrar a resposta na tela (substitua 'responseElement' pelo elemento adequado do seu template HTML)
+          response = response.replace('\r', '').trim();
+          response = response.replace('>', '').trim();
           this.responseElement = response;
+          this.responseStatus = 1;
           clearTimeout(timeoutId);
           timeoutId = null;
-          /*
           setTimeout(() => {
             // Limpar a resposta após 2 segundos
             this.responseElement = '';
             subscription.unsubscribe();
           }, timeout);
-          */
           resolve(response);
         }
       },
@@ -235,14 +236,14 @@ readWithTimeout(timeout: number): Promise<string> {
     );
 
     timeoutId = setTimeout(() => {
-      console.warn('Timeout de leitura excedido');
+      //console.warn('Timeout de leitura excedido');
       timeoutId = null;
       subscription.unsubscribe();
-      reject('Timeout de leitura excedido');
+      this.responseStatus = 0;
+      //reject('Timeout de leitura excedido');
     }, timeout);
   });
 }
-
 
 /***/
 
@@ -300,12 +301,17 @@ readWithTimeout(timeout: number): Promise<string> {
         */
         // console.log('Comandos Adicionais :');
         for (const command of comandos) {
-          await this.write(command.comando + '\r');
-          const response = await this.readWithTimeout(2000);
-          // console.log('Resposta do comando (',command,'):', response);
-          console.log('Resposta do dispositivo para o comando (',command.comando,') : ', response);
-          //command.resposta = response;
-          command.resposta = this.responseElement;
+          try {
+            //console.log('Enviando comando ', command.comando);
+            await this.write(command.comando + '\r');
+            const response = await this.readWithTimeout(2000);
+            command.resposta = this.responseElement;
+            command.status = this.responseStatus;
+            console.log('Resposta do dispositivo para o comando (',command.comando,') : ', command.resposta);
+          }catch{
+            command.status = 0;
+            console.log('Time Out de resposta do dispositivo para o comando (',command.comando,') : ', command.resposta);
+          }
         }
       }
       // desconecta do dispositivo Bluetooth
