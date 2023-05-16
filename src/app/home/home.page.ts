@@ -26,8 +26,10 @@ export class HomePage {
     { comando: '03',    status:0, resposta: '' }, // DTC – Sem DTC (erros armazenados)
 
     { comando: 'ATRV',  status:0, resposta: '' }, // Tensao da bateria
+    { comando: '0121',  status:0, resposta: '' }, // Odometro Milhas
+    { comando: '0131',  status:0, resposta: '' }, // Odometro KM
+    { comando: '012F',  status:0, resposta: '' }, // Nivel combustivel %
 
-    { comando: '010C',  status:0, resposta: '' }, // Odometro
     { comando: '0105',  status:0, resposta: '' }, // Temperatura do Motor
     { comando: '015E',  status:0, resposta: '' } // Consumo instantaneo
   ];

@@ -208,7 +208,7 @@ readWithTimeout(timeout: number): Promise<string> {
       data => {
         const chunk = this.bytesToString(data);
         response += chunk;
-        console.log('Chunk recebido:', chunk);
+        // console.log('Chunk recebido:', chunk);
 
         if (chunk.includes('\r')) {
           console.log('Resposta completa recebida:', response);
@@ -304,7 +304,7 @@ readWithTimeout(timeout: number): Promise<string> {
           try {
             //console.log('Enviando comando ', command.comando);
             await this.write(command.comando + '\r');
-            const response = await this.readWithTimeout(2000);
+            const response = await this.readWithTimeout(5000);
             command.resposta = this.responseElement;
             command.status = this.responseStatus;
             console.log('Resposta do dispositivo para o comando (',command.comando,') : ', command.resposta);

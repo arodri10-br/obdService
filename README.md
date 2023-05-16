@@ -32,3 +32,9 @@ git branch -M main
 git remote add origin https://github.com/arodri10-br/obdService.git
 git push -u origin main
 
+Atualizar o Git
+Forçar atualização na nuvem
+git add .
+git status
+git commit -m "Ajuste leitura"
+git push -f
