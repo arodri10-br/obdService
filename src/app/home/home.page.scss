@@ -1,3 +1,4 @@
+/*
 #container {
   text-align: center;
 
@@ -24,4 +25,42 @@
 
 #container a {
   text-decoration: none;
+}
+*/
+/* Definir cor de fundo azul ciano somente para o cabeçalho */
+// ion-row:first-child {  background-color: rgb(255, 208, 0); }
+
+/* Ajustar tamanho das colunas e fontes */
+ion-col:nth-child(1) {
+  flex-basis: 9%; /* Comando com 5 caracteres */
+  font-size: 8px;
+}
+
+ion-col:nth-child(2),
+ion-col:nth-child(3) {
+  flex-basis: 13%; /* Resposta e formatado com 12 caracteres */
+  font-size: 8px;
+}
+
+ion-col:nth-child(4) {
+  flex-basis: 58%; /* Descrição com 50 caracteres */
+  font-size: 8px;
+}
+
+/* Remover cor de fundo das linhas do grid */
+ion-row:not(:first-child) {
+  background-color: transparent;
+}
+
+/* Adicionar linhas de grade */
+ion-row {
+  border-bottom: 1px solid black; /* Adicione uma linha de grade inferior a cada linha */
+  border-top: 1px solid black; /* Adicione uma linha de grade inferior a cada linha */
+  border-left: 1px solid black; /* Adicione uma linha de grade inferior a cada linha */
+  border-right: 1px solid black; /* Adicione uma linha de grade inferior a cada linha */
+}
+
+/* Remover a linha de grade da última linha do grid */
+ion-row:last-child {
+  border-bottom: none;
 }

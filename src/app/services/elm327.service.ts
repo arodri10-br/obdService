@@ -13,6 +13,9 @@ export class Elm327Service {
   public  responseStatus: any;
   constructor(private bluetoothSerial: BluetoothSerial) { }
 
+  convertToString(strMsg:any){
+
+  }
   list(): Promise<any> {
     return new Promise((resolve, reject) => {
       this.bluetoothSerial.list().then(
@@ -38,6 +41,7 @@ export class Elm327Service {
         },
         error => {
           console.log('Erro de conexao : ',error);
+          console.error('Erro de conexao : ',error);
           reject(error);
         }
       );
@@ -305,12 +309,12 @@ readWithTimeout(timeout: number): Promise<string> {
             //console.log('Enviando comando ', command.comando);
             await this.write(command.comando + '\r');
             const response = await this.readWithTimeout(5000);
-            command.resposta = this.responseElement;
-            command.status = this.responseStatus;
-            console.log('Resposta do dispositivo para o comando (',command.comando,') : ', command.resposta);
+            command.valor_hex = this.responseElement;
+            //command.status = this.responseStatus;
+            console.log('Resposta do dispositivo para o comando (',command.comando,') : ', command.valor_hex);
           }catch{
-            command.status = 0;
-            console.log('Time Out de resposta do dispositivo para o comando (',command.comando,') : ', command.resposta);
+            //command.Status = 0;
+            console.log('Time Out de resposta do dispositivo para o comando (',command.comando,') : ', command.valor_hex);
           }
         }
       }
