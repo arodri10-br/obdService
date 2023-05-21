@@ -1,3 +1,4 @@
+// Documentação dos comandos : https://en.wikipedia.org/wiki/OBD-II_PIDs
 import { Injectable } from '@angular/core';
 import { BluetoothSerial } from '@ionic-native/bluetooth-serial/ngx';
 
@@ -13,9 +14,6 @@ export class Elm327Service {
   public  responseStatus: any;
   constructor(private bluetoothSerial: BluetoothSerial) { }
 
-  convertToString(strMsg:any){
-
-  }
   list(): Promise<any> {
     return new Promise((resolve, reject) => {
       this.bluetoothSerial.list().then(
@@ -47,6 +45,7 @@ export class Elm327Service {
       );
     });
   }
+
   write(data: string): Promise<void> { // Adicione 'void' como o tipo de retorno
     return new Promise<void>((resolve, reject) => { // Adicione 'void' como o tipo de retorno
       //console.log('Comando recebido : ', data);
@@ -67,42 +66,8 @@ export class Elm327Service {
     });
   }
 
-/*
-  read(): Promise<any> {
-    return new Promise((resolve, reject) => {
-      if (!this.connectedDeviceId) {
-        reject('Nenhum dispositivo conectado');
-        return;
-      }
 
-      this.bluetoothSerial.read().then(
-        data => {
-          console.log('Data recebida : ',data);
-          resolve(data);
-        },
-        error => {
-          console.log('Erro de Leitura : ',error);
-          reject(error);
-        }
-      );
-    });
-  }
-*/
-
-/***/
-/*
-bytesToString(bytes: number[]): string {
-  let result = '';
-  for (let i = 0; i < bytes.length; i++) {
-    result += String.fromCharCode(bytes[i]);
-    console.log('bytesToString (i) :',i,' (bytes[i]) :',bytes[i]);
-  }
-  console.log('Conversão de dados (Recebido) :',bytes,' (Retornado) :',result);
-  return decodeURIComponent(escape(result));
-}
-*/
-
-bytesToString(buffer: ArrayBuffer): string {
+  bytesToString(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer);
   let result = '';
   for (let i = 0; i < bytes.length; i++) {
@@ -111,93 +76,6 @@ bytesToString(buffer: ArrayBuffer): string {
   return decodeURIComponent(escape(result));
 }
 
-/*
-readWithTimeout_1(timeout: number): Promise<any> {
-  return new Promise<any>((resolve, reject) => {
-    if (!this.connectedDeviceId) {
-      reject('Nenhum dispositivo conectado');
-      return;
-    }
-
-    let responseReceived = false;
-
-    const subscription = this.bluetoothSerial.subscribeRawData().subscribe(
-      data => {
-
-        const response = this.bytesToString(data);
-        console.log('Resposta do dispositivo(data):',data, ' Resposta convertida :', response);
-        // Mostrar a resposta na tela (substitua 'responseElement' pelo elemento adequado do seu template HTML)
-        this.responseElement = response;
-        responseReceived = true;
-        setTimeout(() => {
-          // Limpar a resposta após 2 segundos
-          this.responseElement = '';
-          subscription.unsubscribe();
-        }, timeout);
-        resolve(response);
-      },
-      error => {
-        console.error('Erro ao receber resposta do dispositivo:', error);
-        reject(error);
-      }
-    );
-
-    setTimeout(() => {
-      if (!responseReceived) {
-        const timeoutError = 'Timeout de leitura excedido';
-        //console.error(timeoutError);
-        console.log(timeoutError);
-        subscription.unsubscribe();
-        reject(timeoutError);
-      }
-    }, timeout);
-  });
-}
-*/
-
-/*
-readWithTimeout(timeout: number): Promise<string> {
-  return new Promise<string>((resolve, reject) => {
-    if (!this.connectedDeviceId) {
-      reject('Nenhum dispositivo conectado');
-      return;
-    }
-
-    let response = '';
-
-    const subscription = this.bluetoothSerial.subscribeRawData().subscribe(
-      data => {
-        const chunk = this.bytesToString(data);
-        response += chunk;
-        console.log('Chunk recebido:', chunk);
-
-        if (chunk.includes('\r')) {
-          console.log('Resposta completa recebida:', response);
-          // Mostrar a resposta na tela (substitua 'responseElement' pelo elemento adequado do seu template HTML)
-          this.responseElement = response;
-          setTimeout(() => {
-            // Limpar a resposta após 2 segundos
-            this.responseElement = '';
-            subscription.unsubscribe();
-          }, 2000);
-          resolve(response);
-        }
-      },
-      error => {
-        console.error('Erro ao receber resposta do dispositivo:', error);
-        reject(error);
-      }
-    );
-
-    setTimeout(() => {
-      const timeoutError = 'Timeout de leitura excedido';
-      console.error(timeoutError);
-      subscription.unsubscribe();
-      reject(timeoutError);
-    }, timeout);
-  });
-}
-*/
 readWithTimeout(timeout: number): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     if (!this.connectedDeviceId) {
@@ -285,25 +163,6 @@ readWithTimeout(timeout: number): Promise<string> {
       }
 
       if (this.bisConnected && this.bBlueToothEnable){
-        // Enviar comando ATZ para obter o nome do dispositivo
-        //console.log('Enviando comando ATI...');
-        //await this.write('ATI\r');
-
-        // Ler a resposta do dispositivo
-        //console.log('Lendo resposta do dispositivo...');
-        //const response = await this.read();
-        //const response = await this.readWithTimeout(2000);
-        //console.log('Resposta do dispositivo para o comando (ATI) : ', response);
-
-        // Lista de comandos principais disponíveis no ELM327
-        /*
-        const commands = [
-          'ATZ\r', // - Reset',
-          'AT0\r' // - Get Device Info',
-          // Adicione mais comandos aqui...
-        ];
-        */
-        // console.log('Comandos Adicionais :');
         for (const command of comandos) {
           try {
             //console.log('Enviando comando ', command.comando);
@@ -329,4 +188,50 @@ readWithTimeout(timeout: number): Promise<string> {
       alert(error);
     }
   }
+
+/****************************************************************************************************/
+/*   Funcoes de conversao  */
+/****************************************************************************************************/
+  convert2Bytes(hexValue: string): number | null {
+    hexValue = hexValue.replace(/\s/g, '');
+    const hexPairs = hexValue.match(/.{1,2}/g);
+    let retorno: any = 0;
+    if (hexPairs && hexPairs[0] === '41' ) {
+      retorno = (( parseInt(hexPairs[2] , 16) * 256 ) + parseInt(hexPairs[3], 16)) ;
+    }
+    return retorno;
+  }
+
+  convertPercentA(hexValue: string): number | null {
+    hexValue = hexValue.replace(/\s/g, '');
+    const hexPairs = hexValue.match(/.{1,2}/g);
+    let retorno: any = 0;
+    if (hexPairs && hexPairs[0] === '41' ) {
+      retorno = ( parseInt(hexPairs[2] , 16) * 100 ) / 255;
+    }
+    return retorno;
+  }
+
+  bitDecoder(hexValue: string): number | null {
+    hexValue = hexValue.replace(/\s/g, '');
+    const hexPairs = hexValue.match(/.{1,2}/g);
+    let retorno: any = 0;
+    if (hexPairs && hexPairs[0] === '41' ) {
+      retorno = parseInt(hexPairs[2] , 2);
+    }
+    return retorno;
+  }
+
+
+  convertEngineFuelRate(hexValue: string): number | null {
+    hexValue = hexValue.replace(/\s/g, '');
+    const hexPairs = hexValue.match(/.{1,2}/g);
+    let retorno: any = 0;
+    if (hexPairs && hexPairs[0] === '41' ) {
+      retorno = (( parseInt(hexPairs[2] , 16) * 256 ) + parseInt(hexPairs[3], 16)) / 20 ;
+    }
+    return retorno;
+  }
+
 }
+

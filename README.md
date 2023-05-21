@@ -36,5 +36,5 @@ Atualizar o Git
 Forçar atualização na nuvem
 git add .
 git status
-git commit -m "Ajuste leitura"
+git commit -m "Melhoria Layout"
 git push -f
