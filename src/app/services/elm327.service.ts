@@ -170,6 +170,14 @@ readWithTimeout(timeout: number): Promise<string> {
             const response = await this.readWithTimeout(5000);
             command.valor_hex = this.responseElement;
             //command.status = this.responseStatus;
+//          comando.esperado = (this as any)[comando.funcao](comando.leitura);
+            if (command.fnc_conversao !== null) {
+              try {
+                command.valor_texto = (this as any)[command.fnc_conversao]( command.valor_hex );
+              }catch (error){
+                console.log('Erro de conversao ',command.comando,', pela funcao : ', command.fnc_conversao, '(', command.valor_hex,') \n Erro :', error);
+              }
+            }
             console.log('Resposta do dispositivo para o comando (',command.comando,') : ', command.valor_hex);
           }catch{
             //command.Status = 0;
@@ -193,6 +201,7 @@ readWithTimeout(timeout: number): Promise<string> {
 /*   Funcoes de conversao  */
 /****************************************************************************************************/
   convert2Bytes(hexValue: string): number | null {
+    console.log('Chamada função : convert2Bytes(',hexValue,')' )
     hexValue = hexValue.replace(/\s/g, '');
     const hexPairs = hexValue.match(/.{1,2}/g);
     let retorno: any = 0;
@@ -221,7 +230,6 @@ readWithTimeout(timeout: number): Promise<string> {
     }
     return retorno;
   }
-
 
   convertEngineFuelRate(hexValue: string): number | null {
     hexValue = hexValue.replace(/\s/g, '');
